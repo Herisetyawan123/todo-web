@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"todo-web/entity"
 	"todo-web/repository"
 )
@@ -9,12 +10,12 @@ import (
 type UserService interface {
 	GetUser(ctx context.Context, id int) (entity.User, error)
 	Login(ctx context.Context, data entity.LoginRequest) error
-	Register(ctx context.Context, data entity.User) error
+	Register(ctx context.Context, data *entity.User) (entity.User, error)
 	Token(ctx context.Context, id int) (string, error)
 	Verification(ctx context.Context, id int) error
 }
 type userService struct {
-	userRepository repository.UserRepository
+	repo repository.UserRepository
 }
 
 func NewUserService(repository repository.UserRepository) UserService {
@@ -27,20 +28,24 @@ func (s *userService) GetUser(ctx context.Context, id int) (entity.User, error) 
 
 func (s *userService) Login(ctx context.Context, data entity.LoginRequest) error {
 	// TODO: service login
-	_, err := s.userRepository.GetUserByUsername(ctx, data.Username)
+	_, err := s.repo.GetUserByUsername(ctx, data.Username)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (s *userService) Register(ctx context.Context, data entity.User) error {
-	// TODO: service login
-	err := s.userRepository.AddUser(ctx, data)
-	if err != nil {
-		return err
+func (s *userService) Register(ctx context.Context, data *entity.User) (entity.User, error) {
+	_, err := s.repo.GetUserByEmailNUsername(ctx, data.Username, data.Password)
+	if err == nil {
+		return entity.User{}, errors.New("Username atau email sudah ada coba pilih username atau email yg berbeda")
 	}
-	return nil
+
+	newUser, err := s.repo.AddUser(ctx, *data)
+	if err != nil {
+		return entity.User{}, err
+	}
+	return newUser, nil
 }
 
 func (s *userService) Token(ctx context.Context, id int) (string, error) {

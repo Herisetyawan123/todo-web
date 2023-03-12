@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"net/http"
@@ -10,16 +9,6 @@ import (
 	"todo-web/route"
 	"todo-web/utils"
 )
-
-type Response struct {
-	status string `json:"status"`
-}
-
-func handler(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(Response{
-		status: "201",
-	})
-}
 
 func main() {
 	os.Setenv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/todo-web")
