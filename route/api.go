@@ -24,7 +24,7 @@ func Api(mux *http.ServeMux, db *gorm.DB) *http.ServeMux {
 	MuxRoute(mux, Get, PathApi("/users"), userHandler.GetUser)
 	MuxRoute(mux, Get, PathApi("/users/token"), userHandler.Token)
 	MuxRoute(mux, Get, PathApi("/users/verification"), userHandler.Verification)
-	MuxRoute(mux, Get, PathApi("/auth/register"), userHandler.Register)
+	MuxRoute(mux, Post, PathApi("/auth/register"), userHandler.Register)
 	MuxRoute(mux, Get, PathApi("/auth/login"), userHandler.Login)
 
 	MuxRoute(mux, Get, PathApi("/"), handler.Welcome)
@@ -35,6 +35,12 @@ func MuxRoute(mux *http.ServeMux, method Method, path string, handler func(w htt
 	var handle http.Handler
 	if method.String() == "GET" {
 		handle = middleware.Get(http.HandlerFunc(handler))
+	} else if method.String() == "POST" {
+		handle = middleware.Post(http.HandlerFunc(handler))
+	} else if method.String() == "PUT" {
+		handle = middleware.Put(http.HandlerFunc(handler))
+	} else if method.String() == "DELETE" {
+		handle = middleware.Put(http.HandlerFunc(handler))
 	} else {
 		handle = middleware.Get(http.HandlerFunc(handler))
 	}

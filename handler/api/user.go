@@ -29,8 +29,35 @@ func (u *userApi) GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *userApi) Register(w http.ResponseWriter, r *http.Request) {
-	// TODO: untuk menghandle register
-	json.NewEncoder(w).Encode(entity.User{ID: 1, Email: "herisetyawan233@gmail.com", Password: "123456", Username: "herisetyawan"})
+	var userForm entity.RegisterRequest
+
+	err := json.NewDecoder(r.Body).Decode(&userForm)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(entity.NewResponseError("terjadi kesalah ketika menerjemahkan request body"))
+		return
+	}
+
+	if userForm.Email == "" || userForm.Password == "" || userForm.Password == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(entity.NewResponseError("jangan ada form yang kosong"))
+		return
+	}
+
+	user := entity.User{
+		Email:    userForm.Email,
+		Username: userForm.Username,
+		Password: userForm.Password,
+	}
+	newUser, err := u.userService.Register(r.Context(), &user)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(entity.NewResponseError(err.Error()))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{"message": "success", "data": newUser})
 	return
 }
 
