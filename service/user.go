@@ -36,7 +36,7 @@ func (s *userService) Login(ctx context.Context, data entity.LoginRequest) error
 }
 
 func (s *userService) Register(ctx context.Context, data *entity.User) (entity.User, error) {
-	_, err := s.repo.GetUserByEmailNUsername(ctx, data.Username, data.Password)
+	_, err := s.repo.GetUserByEmailNUsername(ctx, data.Username, data.Email)
 	if err == nil {
 		return entity.User{}, errors.New("Username atau email sudah ada coba pilih username atau email yg berbeda")
 	}

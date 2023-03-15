@@ -32,10 +32,10 @@ func (r *userRepository) GetUserByUsername(ctx context.Context, username string)
 
 func (r *userRepository) GetUserByEmailNUsername(ctx context.Context, username string, email string) (entity.User, error) {
 	var user entity.User
-	if err := r.db.WithContext(ctx).First(&user).Where("username = ? and email = ?", username, email).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("email = ?", email).First(&user).Error; err != nil {
 		return entity.User{}, err
 	}
-	return entity.User{}, nil
+	return user, nil
 }
 
 func (r *userRepository) GetUserById(ctx context.Context, id int) (entity.User, error) {

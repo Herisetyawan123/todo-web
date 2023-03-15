@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"todo-web/entity"
 	"todo-web/service"
+	"todo-web/utils"
 )
 
 type UserApi interface {
@@ -44,10 +45,17 @@ func (u *userApi) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	passHash, err := utils.GeneratePassword(userForm.Password)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(entity.NewResponseError("terjadi kesalah pada server"))
+		return
+	}
+
 	user := entity.User{
 		Email:    userForm.Email,
 		Username: userForm.Username,
-		Password: userForm.Password,
+		Password: passHash,
 	}
 	newUser, err := u.userService.Register(r.Context(), &user)
 	if err != nil {
